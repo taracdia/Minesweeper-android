@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     TextView flagsLeftTextView;
     ImageButton imageButton;
 
-    //fake edit
+    //fake edit2
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
