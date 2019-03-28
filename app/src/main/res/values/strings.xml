@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Minesweeper</string>
-    <string name="zero">000</string>
+    <string name="triple_zero">000</string>
+    <string name="double_zero">00</string>
     <string name="nines">999</string>
     <string name="changeLevel">Change Level</string>
     <string name="mediumButton">Medium: 16x16, 40 bombs</string>

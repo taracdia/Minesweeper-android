@@ -39,6 +39,6 @@ public class MyTimer extends Chronometer {
 
     public void resetCount(){
         count = 0;
-        setText(R.string.zero);
+        setText(R.string.triple_zero);
     }
 }
