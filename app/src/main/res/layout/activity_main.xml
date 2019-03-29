@@ -36,14 +36,18 @@
             tools:ignore="ContentDescription"/>
         <com.taracdia.minesweeper.MyTimer
             android:id="@+id/timer"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+
             android:background="@android:color/black"
             android:gravity="end"
             android:text="@string/double_zero"
             android:textColor="?attr/colorError"
             android:textSize="60sp"
             />
+        <!--<Chronometer-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textSize="20sp"-->
+            <!--android:id="@+id/cmTimer"/>-->
 
     </TableRow>
 

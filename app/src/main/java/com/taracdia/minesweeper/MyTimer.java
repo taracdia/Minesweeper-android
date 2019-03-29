@@ -25,6 +25,7 @@ public class MyTimer extends Chronometer {
 
     public MyTimer(Context context) {
         super(context);
+        setOnChronometerTickListener(onChronometerTickListener);
     }
 
     public MyTimer(Context context, AttributeSet attrs) {

@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Chronometer;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -16,6 +17,12 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
+    // TODO: databinding for flagsLeft
+    // TODO: 3/28/2019 improve layout
+    // TODO: 3/28/2019 add menu to make different levels and custom levels
+    // TODO: 3/28/2019 data validation to prevent them from making squares too small or too full of bombs
+    // TODO: 3/28/2019 high scores of each level with option to clear it
+    // TODO: 3/28/2019 make sure that they can resume a game or start a new one 
     GridView mineGrid;
     ArrayList<MineSquare> mineSquares;
     int numberOfColumns;
@@ -39,17 +46,18 @@ public class MainActivity extends AppCompatActivity {
         mineGrid = findViewById(R.id.mineGrid);
 
         final MineSquareAdapter adapter = new MineSquareAdapter(this, mineSquares);
-        setUpGrid(10, 10, 10);
+        setUpGame(10, 10, 10);
 
-        timer.resetCount();
         imageButton.setBackgroundResource(R.drawable.happyface);
         mineGrid.setAdapter(adapter);
         mineGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                timer.start();
                 MineSquare square = mineSquares.get(position);
                 if (!square.isFlagged()) {
                     if (square.isBomb()) {
+                        timer.stop();
                         square.setClicked(true);
                         imageButton.setBackgroundResource(R.drawable.deadface);
                         adapter.setGameOver(true);
@@ -60,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (isGameWon()){
+                    timer.stop();
                     Toast.makeText(MainActivity.this, "game won", Toast.LENGTH_SHORT).show();
                     imageButton.setBackgroundResource(R.drawable.coolface);
                 }
@@ -92,30 +101,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 adapter.setGameOver(false);
-                setUpGrid(10,10,10);
+                setUpGame(10,10,10);
                 adapter.notifyDataSetChanged();
             }
         });
 
     }
 
-    private void setUpGrid(int colNo, int rowNo, int bombNo) {
-        //TODO
-        //set check
+    private void setUpGame(int colNo, int rowNo, int bombNo) {
+        timer.stop();
+        timer.resetCount();
 
         numberOfColumns = colNo;
         numberOfRows = rowNo;
         numberOfBombs = bombNo;
         flagsLeft = bombNo;
 
-        flagsLeft = numberOfBombs;
         flagsLeftTextView.setText(Integer.toString(bombNo));
         imageButton.setBackgroundResource(R.drawable.happyface);
 
-        mineGrid.setNumColumns(numberOfColumns);
+        mineGrid.setNumColumns(colNo);
         mineSquares.clear();
 
-        int totalSquares = numberOfColumns * numberOfRows;
+        int totalSquares = colNo * rowNo;
 
         for (int i = 0; i < totalSquares; i++) {
             mineSquares.add(new MineSquare());
