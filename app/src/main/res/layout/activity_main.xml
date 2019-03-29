@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <TableRow
         android:id="@+id/buttonBar"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
@@ -17,11 +19,10 @@
 
         <TextView
             android:id="@+id/flagsLeftTextView"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:background="@android:color/black"
-            android:gravity="end"
-            android:text="@string/double_zero"
+            android:text="@string/triple_zero"
             android:textColor="?attr/colorError"
             android:textSize="60sp" />
 
@@ -29,35 +30,25 @@
             android:id="@+id/imageButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="60dp"
-            android:layout_marginStart="60dp"
-            android:layout_marginRight="140dp"
-            android:layout_marginEnd="140dp"
             tools:ignore="ContentDescription"/>
         <com.taracdia.minesweeper.MyTimer
             android:id="@+id/timer"
-
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:background="@android:color/black"
-            android:gravity="end"
-            android:text="@string/double_zero"
             android:textColor="?attr/colorError"
             android:textSize="60sp"
             />
-        <!--<Chronometer-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textSize="20sp"-->
-            <!--android:id="@+id/cmTimer"/>-->
-
     </TableRow>
 
     <GridView
         android:id="@+id/mineGrid"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_margin="8dp"
+        android:background="@color/colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonBar" />
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

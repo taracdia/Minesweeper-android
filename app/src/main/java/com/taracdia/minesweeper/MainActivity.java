@@ -14,6 +14,7 @@ import com.taracdia.minesweeper.MineSquares.MineSquare;
 import com.taracdia.minesweeper.MineSquares.MineSquareAdapter;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,7 +23,8 @@ public class MainActivity extends AppCompatActivity {
     // TODO: 3/28/2019 add menu to make different levels and custom levels
     // TODO: 3/28/2019 data validation to prevent them from making squares too small or too full of bombs
     // TODO: 3/28/2019 high scores of each level with option to clear it
-    // TODO: 3/28/2019 make sure that they can resume a game or start a new one 
+    // TODO: 3/28/2019 make sure that they can resume a game or start a new one
+    // TODO: 3/29/2019 handle rotation
     GridView mineGrid;
     ArrayList<MineSquare> mineSquares;
     int numberOfColumns;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         final MineSquareAdapter adapter = new MineSquareAdapter(this, mineSquares);
         setUpGame(10, 10, 10);
+
 
         imageButton.setBackgroundResource(R.drawable.happyface);
         mineGrid.setAdapter(adapter);
@@ -89,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
                         square.setFlagged(true);
                         flagsLeft--;
                     }
-                    flagsLeftTextView.setText(Integer.toString(flagsLeft));
+                    updateFlagsView();
+
                     adapter.notifyDataSetChanged();
                 }
 
@@ -101,23 +105,48 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 adapter.setGameOver(false);
-                setUpGame(10,10,10);
+//                System.out.println(mineGrid.getWidth());
+//                        adapter.setSquareDimension(width);
+
+
+                setUpGame(11,11,11);
                 adapter.notifyDataSetChanged();
             }
         });
 
     }
 
+    private void updateFlagsView(){
+        String s = String.format(Locale.US, "%1$03d", flagsLeft);
+        flagsLeftTextView.setText(s);
+    }
+
     private void setUpGame(int colNo, int rowNo, int bombNo) {
         timer.stop();
         timer.resetCount();
+
+//        int width = (int) mineGrid.getLayoutParams().height / colNo;
+//        adapter.setSquareDimension(width);
+
+//        int width = mineGrid.getLayoutParams().width;
+//        int height = mineGrid.getLayoutParams().height;
+////
+//        System.out.println(mineGrid.getWidth());
+//        System.out.println(height);
+//        if(width < height){
+//        adapter.setSquareDimension(width);
+//        } else {
+//            adapter.setSquareDimension(height);
+//        }
+
+
 
         numberOfColumns = colNo;
         numberOfRows = rowNo;
         numberOfBombs = bombNo;
         flagsLeft = bombNo;
 
-        flagsLeftTextView.setText(Integer.toString(bombNo));
+        updateFlagsView();
         imageButton.setBackgroundResource(R.drawable.happyface);
 
         mineGrid.setNumColumns(colNo);

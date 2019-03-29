@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.taracdia.minesweeper.R;
 
@@ -15,6 +16,7 @@ public class MineSquareAdapter extends BaseAdapter {
     private LayoutInflater layoutInflater;
     private ArrayList<MineSquare> mineSquares;
     private boolean gameOver = false;
+//    private int squareDimension = 200;
 
     public MineSquareAdapter(Context context, ArrayList<MineSquare> mineSquares) {
         this.mineSquares = mineSquares;
@@ -24,6 +26,10 @@ public class MineSquareAdapter extends BaseAdapter {
     public void setGameOver(boolean gameOver) {
         this.gameOver = gameOver;
     }
+
+//    public void setSquareDimension(int dimension){
+//        this.squareDimension = dimension;
+//    }
 
     @Override
     public int getCount() {
@@ -48,6 +54,8 @@ public class MineSquareAdapter extends BaseAdapter {
         }
         ImageView icon = convertView.findViewById(R.id.image);
 
+//        icon.getLayoutParams().height = squareDimension;
+
         if (gameOver) {
             if (currentSquare.isBomb()) {
                 if (currentSquare.isClicked()) {
@@ -69,6 +77,7 @@ public class MineSquareAdapter extends BaseAdapter {
                 icon.setImageResource(R.drawable.flag);
             } else {
                 icon.setImageResource(R.drawable.button);
+//                icon.setImageResource(R.drawable.happyface);
             }
         }
         return convertView;
