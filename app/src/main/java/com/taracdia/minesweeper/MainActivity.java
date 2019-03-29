@@ -18,10 +18,10 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
     GridView mineGrid;
     ArrayList<MineSquare> mineSquares;
-    int numberOfColumns = 10;
-    int numberOfRows = 10;
-    int numberOfBombs = 10;
-    int flagsLeft = numberOfBombs;
+    int numberOfColumns;
+    int numberOfRows;
+    int numberOfBombs;
+    int flagsLeft;
 
     TextView flagsLeftTextView;
     ImageButton imageButton;
@@ -32,23 +32,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        timer = findViewById(R.id.timer);
-        timer.resetCount();
-        
         flagsLeftTextView = findViewById(R.id.flagsLeftTextView);
-        flagsLeftTextView.setText(Integer.toString(flagsLeft));
-
         imageButton = findViewById(R.id.imageButton);
-        imageButton.setBackgroundResource(R.drawable.happyface);
-
-
+        timer = findViewById(R.id.timer);
         mineSquares = new ArrayList<>();
         mineGrid = findViewById(R.id.mineGrid);
+
         final MineSquareAdapter adapter = new MineSquareAdapter(this, mineSquares);
+        setUpGrid(10, 10, 10);
+
+        timer.resetCount();
+        imageButton.setBackgroundResource(R.drawable.happyface);
         mineGrid.setAdapter(adapter);
-
-        setUpGrid();
-
         mineGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -96,20 +91,27 @@ public class MainActivity extends AppCompatActivity {
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flagsLeft = numberOfBombs;
-                flagsLeftTextView.setText(Integer.toString(flagsLeft));
-                imageButton.setBackgroundResource(R.drawable.happyface);
                 adapter.setGameOver(false);
-                setUpGrid();
+                setUpGrid(10,10,10);
                 adapter.notifyDataSetChanged();
             }
         });
 
     }
 
-    private void setUpGrid() {
+    private void setUpGrid(int colNo, int rowNo, int bombNo) {
         //TODO
         //set check
+
+        numberOfColumns = colNo;
+        numberOfRows = rowNo;
+        numberOfBombs = bombNo;
+        flagsLeft = bombNo;
+
+        flagsLeft = numberOfBombs;
+        flagsLeftTextView.setText(Integer.toString(bombNo));
+        imageButton.setBackgroundResource(R.drawable.happyface);
+
         mineGrid.setNumColumns(numberOfColumns);
         mineSquares.clear();
 
