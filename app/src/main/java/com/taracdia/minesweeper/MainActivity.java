@@ -25,12 +25,16 @@ public class MainActivity extends AppCompatActivity {
 
     TextView flagsLeftTextView;
     ImageButton imageButton;
+    MyTimer timer;
 
-    //fake edit2
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        timer = findViewById(R.id.timer);
+        timer.resetCount();
+        
         flagsLeftTextView = findViewById(R.id.flagsLeftTextView);
         flagsLeftTextView.setText(Integer.toString(flagsLeft));
 
