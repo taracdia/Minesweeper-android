@@ -181,12 +181,12 @@ public class MainActivity extends AppCompatActivity {
         setUpGame();
     }
 
-    private void handleLevelChange() {
-        //        if (changeLevel(#, #, #, adapter)) {
+//    private void handleLevelChange() {
+//                if (changeLevel(#, #, #, adapter)) {
 //            setUpGame();
 //        } else {
 //        }
-    }
+//    }
 
 
     private void setUpGame() {
