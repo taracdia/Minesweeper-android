@@ -5,10 +5,23 @@ public class MineSquare {
     private boolean isBomb = false;
     private boolean isFlagged = false;
     private int neighborMines = 0;
+    private int position;
 
-    public MineSquare() {
+    public MineSquare(int position) {
+        this.position = position;
     }
 
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public void incrementNeighborMines(){
+        neighborMines++;
+    }
 
     public boolean isClicked() {
         return isClicked;

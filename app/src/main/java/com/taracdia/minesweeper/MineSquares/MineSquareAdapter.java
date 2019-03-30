@@ -16,7 +16,7 @@ public class MineSquareAdapter extends BaseAdapter {
     private LayoutInflater layoutInflater;
     private ArrayList<MineSquare> mineSquares;
     private boolean gameOver = false;
-//    private int squareDimension = 200;
+    private int squareDimension = 90;
 
     public MineSquareAdapter(Context context, ArrayList<MineSquare> mineSquares) {
         this.mineSquares = mineSquares;
@@ -27,9 +27,13 @@ public class MineSquareAdapter extends BaseAdapter {
         this.gameOver = gameOver;
     }
 
-//    public void setSquareDimension(int dimension){
-//        this.squareDimension = dimension;
-//    }
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setSquareDimension(int dimension){
+        this.squareDimension = dimension;
+    }
 
     @Override
     public int getCount() {
@@ -54,7 +58,8 @@ public class MineSquareAdapter extends BaseAdapter {
         }
         ImageView icon = convertView.findViewById(R.id.image);
 
-//        icon.getLayoutParams().height = squareDimension;
+        icon.getLayoutParams().height = squareDimension;
+        icon.getLayoutParams().width = squareDimension;
 
         if (gameOver) {
             if (currentSquare.isBomb()) {

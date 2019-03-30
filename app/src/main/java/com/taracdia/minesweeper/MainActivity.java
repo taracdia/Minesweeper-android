@@ -2,11 +2,13 @@ package com.taracdia.minesweeper;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
-import android.widget.Chronometer;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     // TODO: databinding for flagsLeft
     // TODO: 3/28/2019 improve layout
     // TODO: 3/28/2019 add menu to make different levels and custom levels
-    // TODO: 3/28/2019 data validation to prevent them from making squares too small or too full of bombs
+    // TODO: 3/30/2019 save col/row/bomb number settings
     // TODO: 3/28/2019 high scores of each level with option to clear it
     // TODO: 3/28/2019 make sure that they can resume a game or start a new one
     // TODO: 3/29/2019 handle rotation
@@ -36,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
     ImageButton imageButton;
     MyTimer timer;
 
+    int maxGridHeight = 0;
+    int maxGridWidth = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,32 +53,32 @@ public class MainActivity extends AppCompatActivity {
         mineGrid = findViewById(R.id.mineGrid);
 
         final MineSquareAdapter adapter = new MineSquareAdapter(this, mineSquares);
-        setUpGame(10, 10, 10);
 
-
-        imageButton.setBackgroundResource(R.drawable.happyface);
         mineGrid.setAdapter(adapter);
         mineGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                timer.start();
-                MineSquare square = mineSquares.get(position);
-                if (!square.isFlagged()) {
-                    if (square.isBomb()) {
-                        timer.stop();
-                        square.setClicked(true);
-                        imageButton.setBackgroundResource(R.drawable.deadface);
-                        adapter.setGameOver(true);
-                    } else {
-                        squareClick(position);
+                if (!adapter.isGameOver()) {
+                    timer.start();
+                    MineSquare square = mineSquares.get(position);
+                    if (!square.isFlagged()) {
+                        if (square.isBomb()) {
+                            timer.stop();
+                            square.setClicked(true);
+                            imageButton.setBackgroundResource(R.drawable.deadface);
+                            adapter.setGameOver(true);
+                        } else {
+                            squareClick(square);
+                        }
+                        adapter.notifyDataSetChanged();
                     }
-                    adapter.notifyDataSetChanged();
                 }
 
-                if (isGameWon()){
+                if (isGameWon()) {
                     timer.stop();
                     Toast.makeText(MainActivity.this, "game won", Toast.LENGTH_SHORT).show();
                     imageButton.setBackgroundResource(R.drawable.coolface);
+                    adapter.setGameOver(true);
                 }
 
             }
@@ -82,21 +87,22 @@ public class MainActivity extends AppCompatActivity {
         mineGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                MineSquare square = mineSquares.get(position);
+                if (!adapter.isGameOver()) {
+                    MineSquare square = mineSquares.get(position);
 
-                if (!square.isClicked()) {
-                    if (square.isFlagged()) {
-                        square.setFlagged(false);
-                        flagsLeft++;
-                    } else {
-                        square.setFlagged(true);
-                        flagsLeft--;
+                    if (!square.isClicked()) {
+                        if (square.isFlagged()) {
+                            square.setFlagged(false);
+                            flagsLeft++;
+                        } else {
+                            square.setFlagged(true);
+                            flagsLeft--;
+                        }
+                        updateFlagsView();
+
+                        adapter.notifyDataSetChanged();
                     }
-                    updateFlagsView();
-
-                    adapter.notifyDataSetChanged();
                 }
-
                 return true;
             }
         });
@@ -104,58 +110,97 @@ public class MainActivity extends AppCompatActivity {
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                imageButton.setBackgroundResource(R.drawable.happyface);
                 adapter.setGameOver(false);
-//                System.out.println(mineGrid.getWidth());
-//                        adapter.setSquareDimension(width);
-
-
-                setUpGame(11,11,11);
+                setUpGame();
                 adapter.notifyDataSetChanged();
             }
         });
 
+        final LinearLayout layout = findViewById(R.id.mainLayout);
+        final ViewTreeObserver observer = layout.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        if (maxGridHeight == 0 || maxGridWidth == 0) {
+                            //-10 for padding
+                            maxGridWidth = layout.getWidth() - 10;
+                            //At most, the grid can be the height of the main layout minus the height of the button bar
+                            maxGridHeight = layout.getHeight() - findViewById(R.id.buttonBar).getHeight() - 10;
+                            changeLevel(10, 10, 10, adapter);
+                        }
+                    }
+                });
+
     }
 
-    private void updateFlagsView(){
+    private void updateFlagsView() {
         String s = String.format(Locale.US, "%1$03d", flagsLeft);
         flagsLeftTextView.setText(s);
     }
 
-    private void setUpGame(int colNo, int rowNo, int bombNo) {
-        timer.stop();
-        timer.resetCount();
+    private void changeLevel(int colNo, int rowNo, int bombNo, MineSquareAdapter adapter) {
+        if (maxGridHeight == 0 || maxGridWidth == 0) {
+            LinearLayout mainLayout = findViewById(R.id.mainLayout);
+            //-10 for padding
+            maxGridWidth = mainLayout.getWidth() - 10;
+            //At most, the grid can be the height of the main layout minus the height of the button bar
+            maxGridHeight = mainLayout.getHeight() - findViewById(R.id.buttonBar).getHeight() - 10;
+        }
 
-//        int width = (int) mineGrid.getLayoutParams().height / colNo;
-//        adapter.setSquareDimension(width);
+        if (bombNo > rowNo * colNo) {
+            Toast.makeText(MainActivity.this, "Too many bombs!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-//        int width = mineGrid.getLayoutParams().width;
-//        int height = mineGrid.getLayoutParams().height;
-////
-//        System.out.println(mineGrid.getWidth());
-//        System.out.println(height);
-//        if(width < height){
-//        adapter.setSquareDimension(width);
-//        } else {
-//            adapter.setSquareDimension(height);
-//        }
+        int squareHeight = maxGridHeight / rowNo;
+        int squareWidth = maxGridWidth / colNo;
 
+        int finalSquareDimension = squareWidth;
+        if (squareHeight < squareWidth) {
+            finalSquareDimension = squareHeight;
+        }
 
+        if (finalSquareDimension < 5) {
+            Toast.makeText(MainActivity.this, "This would make the squares too small", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mineGrid.getLayoutParams().height = finalSquareDimension * rowNo;
+        mineGrid.getLayoutParams().width = finalSquareDimension * colNo;
+
+        adapter.setSquareDimension(finalSquareDimension);
+        adapter.notifyDataSetChanged();
 
         numberOfColumns = colNo;
         numberOfRows = rowNo;
         numberOfBombs = bombNo;
         flagsLeft = bombNo;
 
-        updateFlagsView();
-        imageButton.setBackgroundResource(R.drawable.happyface);
+        setUpGame();
+    }
 
-        mineGrid.setNumColumns(colNo);
+    private void handleLevelChange() {
+        //        if (changeLevel(#, #, #, adapter)) {
+//            setUpGame();
+//        } else {
+//        }
+    }
+
+
+    private void setUpGame() {
+        timer.stop();
+        timer.resetCount();
+
+        updateFlagsView();
+        mineGrid.setNumColumns(numberOfColumns);
         mineSquares.clear();
 
-        int totalSquares = colNo * rowNo;
+        int totalSquares = numberOfColumns * numberOfRows;
 
         for (int i = 0; i < totalSquares; i++) {
-            mineSquares.add(new MineSquare());
+            mineSquares.add(new MineSquare(i));
         }
 
         Random r = new Random();
@@ -170,27 +215,19 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        for (int pos = 0; pos < totalSquares; pos++) {
-            mineSquare = mineSquares.get(pos);
-            mineSquare.setNeighborMines(getNeighborNumber(pos));
-        }
-    }
-
-    private int getNeighborNumber(int targetSquarePosition) {
-        int neighborMineNumber = 0;
-
-        ArrayList<Integer> neighborPositions = getNeighbors(targetSquarePosition);
-
-        for (Integer neighborPosition: neighborPositions){
-            if (mineSquares.get(neighborPosition).isBomb()){
-                neighborMineNumber++;
+        ArrayList<Integer> neighborPositions;
+        for (int squarePosition = 0; squarePosition < totalSquares; squarePosition++) {
+            if (mineSquares.get(squarePosition).isBomb()) {
+                neighborPositions = getNeighborPositions(squarePosition);
+                for (Integer neighborPosition : neighborPositions) {
+                    mineSquares.get(neighborPosition).incrementNeighborMines();
+                }
             }
         }
 
-        return neighborMineNumber;
     }
 
-    private ArrayList<Integer> getNeighbors(int targetSquarePosition) {
+    private ArrayList<Integer> getNeighborPositions(int targetSquarePosition) {
         ArrayList<Integer> neighborPositions = new ArrayList<>();
 
         int targetRow = targetSquarePosition / numberOfColumns;
@@ -241,36 +278,32 @@ public class MainActivity extends AppCompatActivity {
         return neighborPositions;
     }
 
-    private void squareClick(int clickedSquarePosition) {
-        MineSquare targetSquare = mineSquares.get(clickedSquarePosition);
-
-        if (targetSquare.getNeighborMines() != 0 || targetSquare.isClicked()) {
+    private void squareClick(MineSquare targetSquare) {
+        if (!(targetSquare.getNeighborMines() != 0 || targetSquare.isClicked())) {
             targetSquare.setClicked(true);
-            return;
-        }
-        targetSquare.setClicked(true);
 
-        ArrayList<Integer> neighborPositions = getNeighbors(clickedSquarePosition);
+            ArrayList<Integer> neighborPositions = getNeighborPositions(targetSquare.getPosition());
 
-        for (Integer neighborPosition: neighborPositions){
-            MineSquare neighborSquare = mineSquares.get(neighborPosition);
-            if (!neighborSquare.isFlagged() && !neighborSquare.isBomb()) {
-                if (neighborSquare.getNeighborMines() == 0) {
-                    squareClick(neighborPosition);
-                } else {
-                    neighborSquare.setClicked(true);
+            for (Integer neighborPosition : neighborPositions) {
+                MineSquare neighborSquare = mineSquares.get(neighborPosition);
+                if (!neighborSquare.isFlagged() && !neighborSquare.isBomb()) {
+                    if (neighborSquare.getNeighborMines() == 0) {
+                        squareClick(neighborSquare);
+                    } else {
+                        neighborSquare.setClicked(true);
+                    }
                 }
             }
         }
+        targetSquare.setClicked(true);
     }
 
-    private boolean isGameWon(){
-        for (MineSquare square: mineSquares){
-            if (!square.isBomb() && !square.isClicked()){
+    private boolean isGameWon() {
+        for (MineSquare square : mineSquares) {
+            if (!square.isBomb() && !square.isClicked()) {
                 return false;
             }
         }
-
         return true;
     }
 
